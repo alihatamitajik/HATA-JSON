@@ -224,7 +224,7 @@ JSON *GetArrayItemJSON(JSON *array,int index)
     /* Going trough the array*/
     JSON *tmp = array->child;
     /* While there are other children */
-    while( tmp ){
+    while( tmp != NULL ){
         /* It checks if it reaches the index or not if it was it returns the item */
         if(counter==index)return tmp;
         /* Else it go trough the next child */
@@ -244,7 +244,7 @@ int   GetArraySizeJSON(JSON *array)
     /* Going trough the array*/
     JSON *tmp = array->child;
     /* While there are other children */
-    while( tmp ){
+    while( tmp != NULL ){
         /*  it go trough the next child */
         tmp = tmp->next;
         /* And add on counter */
@@ -253,3 +253,148 @@ int   GetArraySizeJSON(JSON *array)
     /* Returns size of array */
     return counter;
 }
+/* Parser *****************************************************/
+/* Parser *****************************************************/
+/* Prototypes needed */
+void ParseStringJSON(JSON *toaddon,const char *jstr,const char *string,int *startpoint,int option);
+void ParseObjectJSON(JSON *toaddon,const char *jstr,const char *string,int *startpoint,int option);
+void  ParseArrayJSON(JSON *toaddon,const char *jstr,const char *string,int *startpoint,int option);
+/*
+options :
+0. Add to Object
+1. Add to Array
+*/
+
+
+JSON *ParseJSON(const char * string)
+{
+    JSON *root = CreateNewObjectJSON();
+    int counter = 0,tmpcnt=0;
+    char *tmpstr;
+
+    while(1)
+    {
+        tmpstr = (char *)malloc(2000);
+        /* go through the string and find the first " */
+        while(string[counter]!='\"'&&string[counter])counter++;
+        if(string[counter]=='\0')return root;
+        counter++;
+        tmpcnt = 0;
+        /* copy characters until reaching next " */
+        while(string[counter]!='\"'){
+            tmpstr[tmpcnt] = string[counter];
+            counter++;
+            tmpcnt++;
+        }
+        tmpstr[tmpcnt]='\0';
+        /* tmpstr is now our title*/
+        tmpcnt = 0;
+        while(string[counter]!=':')counter++;
+        counter++;
+        /* Find out what is the next subtitle */
+        switch(string[counter])
+        {
+            case '\"' : ParseStringJSON(root,string,tmpstr,&counter,0);break;
+            case  '{' : ParseObjectJSON(root,string,tmpstr,&counter,0);break;
+            case  '[' : ParseArrayJSON(root,string,tmpstr,&counter,0);break;
+            default : break;
+        }
+        free(tmpstr);
+    }
+    return root;
+}
+
+void ParseStringJSON(JSON *toaddon,const char *jstr,const char *string,int *startpoint,int option)
+{
+    char *tmpstr = (char *)malloc(2000);
+    int tmpcnt = 0;
+    (*startpoint)++;
+    /* Finding the subtitle */
+    while(jstr[*startpoint]!='\"'){
+        tmpstr[tmpcnt] = jstr[*startpoint];
+        (*startpoint)++;
+        tmpcnt++;
+    }
+    tmpstr[tmpcnt]='\0';
+    /* tmpstr is our subtitle */
+    JSON *item = CreateNewStringJSON(tmpstr);
+    /* Add new object to the base */
+    if(option==0)AddItemObjectJSON(toaddon,string,item);
+    else if(option==1)AddItemArrayJSON(toaddon,item);
+    free(tmpstr);
+    (*startpoint)++;
+}
+
+void ParseObjectJSON(JSON *toaddon,const char *jstr,const char *string,int *startpoint,int option)
+{
+    JSON *beadd;
+    int tmpcnt=0;
+    char *tmpstr;
+
+    while(1)
+    {
+        /* Create a new object to be added */
+        beadd = CreateNewObjectJSON();
+        tmpstr = (char *)malloc(2000);
+        /* go through the string and find the first " (Returns if it reaches })*/
+        while(jstr[*startpoint]!='\"')
+        {
+            if(jstr[*startpoint]=='}')return;
+            (*startpoint)++;
+            if(jstr[*startpoint]=='}')return;
+
+        }
+        (*startpoint)++;
+        tmpcnt = 0;
+        /* copy characters until reaching next " */
+        while(jstr[*startpoint]!='\"'){
+            tmpstr[tmpcnt] = jstr[*startpoint];
+            (*startpoint)++;
+            tmpcnt++;
+        }
+        tmpstr[tmpcnt]='\0';
+        /* tmpstr is now our title*/
+        tmpcnt = 0;
+        while(jstr[*startpoint]!=':')(*startpoint)++;
+        (*startpoint)++;
+        /* Find out what is the next subtitle */
+        switch(jstr[*startpoint])
+        {
+            case '\"' : ParseStringJSON(beadd,jstr,tmpstr,startpoint,0);break;
+            default : break;
+        }
+        /* Add new object to the base */
+        if(option==0)AddItemObjectJSON(toaddon,string,beadd);
+        else if(option==1)AddItemArrayJSON(toaddon,beadd);
+        free(tmpstr);
+    }
+}
+
+void ParseArrayJSON(JSON *toaddon,const char *jstr,const char *string,int *startpoint,int option)
+{
+    JSON *beadd;
+    int tmpcnt=0;
+    char *tmpstr;
+    beadd = CreateNewArrayJSON();
+    (*startpoint)++;
+    while(1)
+    {
+        /* Find out what is each element */
+             if(jstr[*startpoint]=='\"')ParseStringJSON(beadd,jstr,"",startpoint,1);
+        else if(jstr[*startpoint]== '{')ParseObjectJSON(beadd,jstr,"",startpoint,1);
+        else if(jstr[*startpoint]== '[')ParseArrayJSON(beadd,jstr,"",startpoint,1);
+        else if(jstr[*startpoint]== ','){
+            (*startpoint)++;
+            continue;
+        }
+        else if(jstr[(*startpoint)--]== ']')break;
+        else if(jstr[*startpoint]== ']')break;
+        (*startpoint)++;
+    }
+    /* Put The Complete array in the root */
+         if(option==0)AddItemObjectJSON(toaddon,string,beadd);
+    else if(option==1)AddItemArrayJSON(toaddon,beadd);
+    return;
+}
+
+

@@ -40,8 +40,8 @@ JSON* CreateNewArrayJSON(void);
 JSON* CreateNewStringJSON(const char const * string);
 
 /* Adding Item(String/Object/Array) to another Item(Object/Array) */
-void AddItemObjectJSON(JSON *object,const char *string,JSON *item);
-void AddItemArrayJSON(JSON *array, JSON *item);
+void  AddItemObjectJSON(JSON *object,const char *string,JSON *item);
+void  AddItemArrayJSON(JSON *array, JSON *item);
 
 /* Output of our JSON */
 char *OutputJSON(JSON *rootobject);
@@ -50,5 +50,8 @@ char *OutputJSON(JSON *rootobject);
 JSON *ParseJSON(const char * string);
 
 /* Get information from Objects */
+JSON *GetObjectItemJSON(JSON *root,const char *string);
+JSON *GetArrayItemJSON(JSON *array,int index);
+int   GetArraySizeJSON(JSON *array);
 
 #endif //HATA_JSON_H_INCLUDED
