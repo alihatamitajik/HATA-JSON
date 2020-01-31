@@ -61,7 +61,7 @@ Add item(String/Object/Array) to an array.
 void AddItemArrayJSON(JSON *array, JSON *item)
 {
     /*temporarily call the child of the array "tmp"*/
-    cJSON *tmp = array->child;
+    JSON *tmp = array->child;
     /*If The Item was empty*/
     if (!item) return;
     /*If Any Chain wasn't created*/
@@ -84,13 +84,102 @@ void AddItemObjectJSON(JSON *object,const char *string,JSON *item)
 {
     if (!item) return;
     /* Put the title in "char* string" */
-    item->string=cJSON_strdup(string);
+    if(item->string)free(item->string);
+    item->string=StrDuplicate(string);
     /* Observe the Object as an array and put the next item in it */
     AddItemArrayJSON(object,item);
 }
 
-/* Create an output string of our JSON Object */
-char *OutputJSON(JSON *object)
-{
+/* Prototypes Used in output */
+void OutputObjectJSON(JSON *object,char *output);
+void OutputArrayJSON(JSON *array,char *output);
+void OutputStringJSON(JSON *string,char *output);
 
+/* Create an output string of our JSON Object */
+char *OutputJSON(JSON *rootobject)
+{
+    char *output;
+    JSON *tmp;
+    strcpy(output,"{");
+    if(rootobject->child == NULL){
+        strcat(output,"}");
+        return output;
+    }
+    tmp = rootobject->child;
+    do{
+        strcat(output,"\"");
+        strcat(output,tmp->string);
+        strcat(output,"\":");
+        switch(tmp->type)
+        {
+            case 1: OutputStringJSON(tmp,output);break;
+            case 2: OutputArrayJSON(tmp,output);break;
+            case 3: OutputObjectJSON(tmp,output);break;
+            default:break;
+        }
+        tmp = tmp->next;
+        if(tmp != NULL)strcat(output,",");
+    }while(tmp != NULL);
+
+    strcat(output,"}");
+    return output;
+
+}
+
+void OutputArrayJSON(JSON *array,char *output)
+{
+    JSON *tmp;
+    strcat(output,"[");
+    if(array->child == NULL){
+        strcat(output,"]");
+        return;
+    }
+    tmp = array->child;
+    do{
+        switch(tmp->type)
+        {
+            case 1: OutputStringJSON(tmp,output);break;
+            case 2: OutputArrayJSON(tmp,output);break;
+            case 3: OutputObjectJSON(tmp,output);break;
+            default:break;
+        }
+        tmp = tmp->next;
+        if(tmp != NULL)strcat(output,",");
+    }while(tmp != NULL);
+    strcat(output,"]");
+    return;
+}
+
+void OutputStringJSON(JSON *string,char *output)
+{
+    char tmp[2047];
+    sprintf(tmp,"\"%s\"",string->valuestring);
+    strcat(output,tmp);
+}
+
+void OutputObjectJSON(JSON *object,char *output)
+{
+    JSON *tmp;
+    strcat(output,"{");
+    if(object->child == NULL){
+        strcat(output,"}");
+        return;
+    }
+    tmp = object->child;
+    do{
+        strcat(output,"\"");
+        strcat(output,tmp->string);
+        strcat(output,"\":");
+        switch(tmp->type)
+        {
+            case 1: OutputStringJSON(tmp,output);break;
+            case 2: OutputArrayJSON(tmp,output);break;
+            case 3: OutputObjectJSON(tmp,output);break;
+            default:break;
+        }
+        tmp = tmp->next;
+        if(tmp != NULL)strcat(output,",");
+    }while(tmp != NULL);
+    strcat(output,"}");
+    return;
 }

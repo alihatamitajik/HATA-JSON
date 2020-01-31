@@ -44,8 +44,6 @@ void AddItemObjectJSON(JSON *object,const char *string,JSON *item);
 void AddItemArrayJSON(JSON *array, JSON *item);
 
 /* Output of our JSON */
-char *OutputJSON(JSON *object);
+char *OutputJSON(JSON *rootobject);
 
-
-#include"HATA_JSON.c"
 #endif //HATA_JSON_H_INCLUDED
