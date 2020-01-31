@@ -54,4 +54,7 @@ JSON *GetObjectItemJSON(JSON *root,const char *string);
 JSON *GetArrayItemJSON(JSON *array,int index);
 int   GetArraySizeJSON(JSON *array);
 
+/* Deleting a JSON structure */
+void DeleteJSON(JSON *input);
+
 #endif //HATA_JSON_H_INCLUDED

@@ -397,4 +397,24 @@ void ParseArrayJSON(JSON *toaddon,const char *jstr,const char *string,int *start
     return;
 }
 
+/* Delete a JSON structure */
+void DeleteJSON(JSON *input)
+{
+    JSON *next;
+	while (input != NULL)
+	{
+		next = input->next;
+		/* If the input has a child child should be removed first */
+		if ((input->type==2||input->type==3) && (input->child!=NULL)) DeleteJSON(input->child);
+		/* If input has the ValueString it should be freed */
+		if (input->valuestring != NULL) free(input->valuestring);
+		/* If input has the string it should be freed */
+		if (input->string != NULL) free(input->string);
+		/* at last free the memory of the input */
+		free(input);
+		/* go for the next child */
+		input=next;
+	}
+	return;
+}
 
