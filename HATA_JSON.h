@@ -46,4 +46,9 @@ void AddItemArrayJSON(JSON *array, JSON *item);
 /* Output of our JSON */
 char *OutputJSON(JSON *rootobject);
 
+/* Parser */
+JSON *ParseJSON(const char * string);
+
+/* Get information from Objects */
+
 #endif //HATA_JSON_H_INCLUDED

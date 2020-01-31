@@ -100,27 +100,33 @@ char *OutputJSON(JSON *rootobject)
 {
     char *output;
     JSON *tmp;
+    /* opening the accolade */
     strcpy(output,"{");
     if(rootobject->child == NULL){
+        /* closing the accolade if the root object doesn't have any child*/
         strcat(output,"}");
         return output;
     }
     tmp = rootobject->child;
     do{
+        /* Adding title */
         strcat(output,"\"");
         strcat(output,tmp->string);
         strcat(output,"\":");
         switch(tmp->type)
         {
+            /* Choose what kind is our JSON* */
             case 1: OutputStringJSON(tmp,output);break;
             case 2: OutputArrayJSON(tmp,output);break;
             case 3: OutputObjectJSON(tmp,output);break;
             default:break;
         }
         tmp = tmp->next;
+        /* Adding a separator if there is another child */
         if(tmp != NULL)strcat(output,",");
-    }while(tmp != NULL);
+    }while(tmp != NULL);/* Looping while there is child left */
 
+    /* closing the accolade*/
     strcat(output,"}");
     return output;
 
@@ -130,6 +136,7 @@ void OutputArrayJSON(JSON *array,char *output)
 {
     JSON *tmp;
     strcat(output,"[");
+    /* opening the [ */
     if(array->child == NULL){
         strcat(output,"]");
         return;
@@ -138,14 +145,17 @@ void OutputArrayJSON(JSON *array,char *output)
     do{
         switch(tmp->type)
         {
+            /* Choose what kind is our JSON* */
             case 1: OutputStringJSON(tmp,output);break;
             case 2: OutputArrayJSON(tmp,output);break;
             case 3: OutputObjectJSON(tmp,output);break;
             default:break;
         }
         tmp = tmp->next;
+        /* Adding a separator if there is another child */
         if(tmp != NULL)strcat(output,",");
-    }while(tmp != NULL);
+    }while(tmp != NULL);/* Looping while there is child left */
+    /* closing the ] */
     strcat(output,"]");
     return;
 }
@@ -160,26 +170,86 @@ void OutputStringJSON(JSON *string,char *output)
 void OutputObjectJSON(JSON *object,char *output)
 {
     JSON *tmp;
+    /* opening the accolade */
     strcat(output,"{");
     if(object->child == NULL){
+        /* closing the accolade if the root object doesn't have any child*/
         strcat(output,"}");
         return;
     }
     tmp = object->child;
     do{
+        /* Adding title */
         strcat(output,"\"");
         strcat(output,tmp->string);
         strcat(output,"\":");
         switch(tmp->type)
         {
+            /* Choose what kind is our JSON* */
             case 1: OutputStringJSON(tmp,output);break;
             case 2: OutputArrayJSON(tmp,output);break;
             case 3: OutputObjectJSON(tmp,output);break;
             default:break;
         }
         tmp = tmp->next;
+        /* Adding a separator if there is another child */
         if(tmp != NULL)strcat(output,",");
-    }while(tmp != NULL);
+    }while(tmp != NULL);/* Looping while there is child left */
+    /* closing the accolade*/
     strcat(output,"}");
     return;
+}
+/* Get information from Objects */
+
+/* Search between all children and find the child that has same string if not found it returns NULL */
+JSON *GetObjectItemJSON(JSON *root,const char *string)
+{
+    JSON *tmp = root->child;
+    /* While there exist children*/
+    while(tmp != NULL){
+        /* if both strings are the-same it returns the item*/
+        if(!strcmp(tmp->string,string))return tmp;
+        /* if it wasn't go to next child*/
+        tmp = tmp->next;
+    }
+    /* If nothing found it returns NULL*/
+    return NULL;
+}
+
+/* Go through the array and returns the index's item */
+JSON *GetArrayItemJSON(JSON *array,int index)
+{
+    /* Set a counter that alert us when we reach the wanted index*/
+    int counter = 0;
+    /* Going trough the array*/
+    JSON *tmp = array->child;
+    /* While there are other children */
+    while( tmp ){
+        /* It checks if it reaches the index or not if it was it returns the item */
+        if(counter==index)return tmp;
+        /* Else it go trough the next child */
+        tmp = tmp->next;
+        /* And add on counter*/
+        counter++;
+    }
+    /* If there isn't any child with this index it returns NULL*/
+    return NULL;
+}
+
+/* It Finds the array size */
+int   GetArraySizeJSON(JSON *array)
+{
+    /* Set a counter that alert us when we reach the wanted index*/
+    int counter = 0;
+    /* Going trough the array*/
+    JSON *tmp = array->child;
+    /* While there are other children */
+    while( tmp ){
+        /*  it go trough the next child */
+        tmp = tmp->next;
+        /* And add on counter */
+        counter++;
+    }
+    /* Returns size of array */
+    return counter;
 }
