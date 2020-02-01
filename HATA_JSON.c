@@ -330,20 +330,24 @@ void ParseObjectJSON(JSON *toaddon,const char *jstr,const char *string,int *star
     JSON *beadd;
     int tmpcnt=0;
     char *tmpstr;
+    int flag = 0;
+    /* Create a new object to be added */
+        beadd = CreateNewObjectJSON();
 
     while(1)
     {
-        /* Create a new object to be added */
-        beadd = CreateNewObjectJSON();
+
         tmpstr = (char *)malloc(2000);
-        /* go through the string and find the first " (Returns if it reaches })*/
+        /* go through the string and find the first " (Break if it reaches })*/
         while(jstr[*startpoint]!='\"')
         {
-            if(jstr[*startpoint]=='}')return;
+            if(jstr[*startpoint]=='}'){flag=1;break;}
             (*startpoint)++;
-            if(jstr[*startpoint]=='}')return;
+            if(jstr[*startpoint]=='}'){flag=1;break;}
 
         }
+        /* Breaking if it reaches } */
+        if(flag)break;
         (*startpoint)++;
         tmpcnt = 0;
         /* copy characters until reaching next " */
@@ -363,11 +367,12 @@ void ParseObjectJSON(JSON *toaddon,const char *jstr,const char *string,int *star
             case '\"' : ParseStringJSON(beadd,jstr,tmpstr,startpoint,0);break;
             default : break;
         }
-        /* Add new object to the base */
-        if(option==0)AddItemObjectJSON(toaddon,string,beadd);
-        else if(option==1)AddItemArrayJSON(toaddon,beadd);
+
         free(tmpstr);
     }
+    /* Add new object to the base */
+    if(option==0)AddItemObjectJSON(toaddon,string,beadd);
+    else if(option==1)AddItemArrayJSON(toaddon,beadd);
 }
 
 void ParseArrayJSON(JSON *toaddon,const char *jstr,const char *string,int *startpoint,int option)
