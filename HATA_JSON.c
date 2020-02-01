@@ -98,7 +98,7 @@ void OutputStringJSON(JSON *string,char *output);
 /* Create an output string of our JSON Object */
 char *OutputJSON(JSON *rootobject)
 {
-    char *output;
+    char *output = (char *)malloc(200000);
     JSON *tmp;
     /* opening the accolade */
     strcpy(output,"{");
