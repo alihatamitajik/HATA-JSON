@@ -4,14 +4,13 @@
 #include <stddef.h>
 
 /* JSON Types: */
-#define JSON_NULL      0
 #define JSON_String    1
 #define JSON_Array     2
 #define JSON_Object    3
 
 
 /*
-Making a linked list of JSONs and it has a child that let us add add arrays
+Making a Tree Structure of JSONs and it has a child that let us add add arrays
 */
 typedef struct JSON
 {
@@ -22,7 +21,6 @@ typedef struct JSON
 
     int type;
     /*
-    NULL      0 //that is used for the root...
     String    1
     Array     2
     Object    3
